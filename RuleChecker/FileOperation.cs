@@ -88,7 +88,7 @@ namespace RuleChecker
 
                                         var attrPair = pair.Split(',');
 
-                                        if(count == rulData.Count -1)
+                                        if(count == rulData.Count)
                                         {
                                             rule.Decision = new KeyValuePair<string, string>(ReplaceFirstOccurrence(attrPair[0], "(", "").Trim(), ReplaceLastOccurrence(attrPair[1],")","").Trim());
                                         }else
