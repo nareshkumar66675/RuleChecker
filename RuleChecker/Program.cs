@@ -10,9 +10,14 @@ namespace RuleChecker
     {
         static void Main(string[] args)
         {
-            var data = FileOperation.ReadDataFile(@"C:\Users\Naresh\Desktop\DM2\car.txt");
+            var data = FileOperation.ReadDataFile(@"C:\Users\Naresh\Desktop\DM2\Class.txt");
 
-            var rules = FileOperation.ReadRuleFile(@"C:\Users\Naresh\Desktop\DM2\car.r.c.txt");
+            var rules = FileOperation.ReadRuleFile(@"C:\Users\Naresh\Desktop\DM2\Class.r.c.txt");
+
+            Decision.UseMatchingFactor = false;
+            Decision.UseSpecificity = false;
+            Decision.UseSupport = false;
+            Decision.UseStrength = true;
 
             RuleCheck rCheck = new RuleCheck(data, rules);
             rCheck.Start();
