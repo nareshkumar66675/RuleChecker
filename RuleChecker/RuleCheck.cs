@@ -21,6 +21,7 @@ namespace RuleChecker
     public class CaseDetails
     {
         public string ID { get; set; }
+        public string DecisionValue { get; set; }
 
         public List<Rule> MatchingRules { get; set; }
 
@@ -55,6 +56,7 @@ namespace RuleChecker
             {
                 CaseDetails cd = new CaseDetails();
                 cd.ID = row[row.Table.Columns.Count-1].ToString();
+                cd.DecisionValue = row[row.Table.Columns.Count - 2].ToString();
                 Rules.Rules.ForEach(rule =>
                 {
                     if (IsMatching(rule.Attributes, row))
@@ -62,6 +64,47 @@ namespace RuleChecker
                 });
 
                 CompleteMatch.Add(cd);
+            }
+
+            foreach(var row in CompleteMatch)
+            {
+                var concepts = row.MatchingRules.Select(t => t.Decision.Value).Distinct().ToList();
+                if(row.MatchingRules.Count == 1) // Only 1 Matching Rule
+                {
+                    if(row.DecisionValue == concepts[0]) // Rule is Correctly Classified
+                    {
+                        row.CorrectlyClassified.Add(row.MatchingRules[0]);
+                    }
+                    else
+                    {
+                        row.InCorrectlyClassified.Add(row.MatchingRules[0]);
+                    }
+                }
+                else if(concepts.Count ==1) //Multiple Rules but Single Concept - No support
+                {
+                    var bestRule= row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+                    if (row.DecisionValue == bestRule.Decision.Value)
+                        row.CorrectlyClassified.Add(bestRule);
+                    else
+                        row.InCorrectlyClassified.Add(bestRule);
+
+                }else if(concepts.Count >1)//Multiple Group Uses Support
+                {
+                    Rule bestRule;
+                    if(Decision.UseSupport)
+                    {
+                        var bestConcept = row.MatchingRules.GroupBy(t => t.Decision.Value).Select(g => new { key = g.Key, Value = g.Sum(s => s.CalculatedValue) }).OrderByDescending(u => u.Value).FirstOrDefault();
+                        bestRule = row.MatchingRules.Where(t => t.Decision.Value == bestConcept.key).OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+                    }else
+                    {
+                        bestRule = row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+                    }
+
+                    if (row.DecisionValue == bestRule.Decision.Value)
+                        row.CorrectlyClassified.Add(bestRule);
+                    else
+                        row.InCorrectlyClassified.Add(bestRule);
+                }
             }
         }
 

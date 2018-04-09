@@ -21,5 +21,6 @@ namespace RuleChecker
         public KeyValuePair<string,string> Decision { get; set; }
 
         public OrderedDictionary Attributes { get; set; }
+        public float CalculatedValue { get;  set; }
     }
 }

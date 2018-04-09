@@ -96,6 +96,8 @@ namespace RuleChecker
                                             rule.Attributes.Add(ReplaceFirstOccurrence(attrPair[0],"(","").Trim(), ReplaceLastOccurrence(attrPair[1], ")", "").Trim());
                                         }
 
+                                        rule.CalculatedValue = Decision.CalculateValue(rule);
+
                                     });
 
                             }
