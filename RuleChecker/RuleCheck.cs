@@ -52,21 +52,32 @@ namespace RuleChecker
 
         public void Start()
         {
-            foreach(DataRow row in TestData.Rows)
+            foreach (DataRow row in TestData.Rows)
             {
                 CaseDetails cd = new CaseDetails();
-                cd.ID = row[row.Table.Columns.Count-1].ToString();
+                cd.ID = row[row.Table.Columns.Count - 1].ToString();
                 cd.DecisionValue = row[row.Table.Columns.Count - 2].ToString();
                 Rules.Rules.ForEach(rule =>
                 {
-                    if (IsMatching(rule.Attributes, row))
+                    if (IsMatchingComplete(rule.Attributes, row))//Complete Match
                         cd.MatchingRules.Add(rule);
                 });
 
                 CompleteMatch.Add(cd);
             }
 
-            foreach(var row in CompleteMatch)
+            //CompleteMatch.Where(t => t.MatchingRules.Count == 0).ToList().ForEach(notMatched =>
+            //{
+            //    var partialAttrib = IsMatchingPartial(notMatched.Attributes, row);
+            //    var newRule = Helper.DeepCopy<Rule>(rule);
+            //    newRule.Attributes = partialAttrib;
+            //    newRule.CalculatedValue = Decision.CalculateValue(newRule);
+            //}
+            //);
+
+
+
+            foreach (var row in CompleteMatch)
             {
                 var concepts = row.MatchingRules.Select(t => t.Decision.Value).Distinct().ToList();
                 if(row.MatchingRules.Count == 1) // Only 1 Matching Rule
@@ -108,40 +119,102 @@ namespace RuleChecker
             }
         }
 
-        private Classification ClassifyCase(DataRow row, Rule rule)
+        private OrderedDictionary IsMatchingPartial(OrderedDictionary attributes, DataRow row)
         {
-            var matching = IsMatching(rule.Attributes, row);
-
-            if(matching)
-            {
-                if (row[rule.Decision.Key].ToString() == rule.Decision.Value)
-                {
-                    return Classification.CorrectlyClassified;
-                }else
-                {
-                    return Classification.IncorrectylyClassified;
-                }
-            }
-            return Classification.NoMatch;
-        }
-
-        private bool IsMatching(OrderedDictionary attributes, DataRow row)
-        {
-            bool matching = true;
+            OrderedDictionary partialAttr = new OrderedDictionary();
 
             foreach (DictionaryEntry attrValue in attributes)
             {
-                if(new string[] { attrValue.Value.ToString(), "*", "-" }.Contains(row[attrValue.Key.ToString()].ToString()))
+                var value = attrValue.Value.ToString();
+                if (!value.Contains(".."))
                 {
-                    continue;
-                }else
-                {
-                    return false;
+                    if (new string[] { value, "*", "-" }.Contains(row[attrValue.Key.ToString()].ToString()))
+                    {
+                        partialAttr.Add(attrValue.Key, attrValue.Value);
+                    }
                 }
+                else//Interval
+                {
+                    var intervals = value.Split(new string[] { ".." }, StringSplitOptions.RemoveEmptyEntries);
+                    if (float.TryParse(intervals[0], out float min)
+                        && float.TryParse(intervals[1], out float max) && float.TryParse(row[attrValue.Key.ToString()].ToString(), out float data))
+                    {
+                        if (data > min && data < max)
+                            partialAttr.Add(attrValue.Key, attrValue.Value);
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Intervals");
+                    }
+                }
+
+            }
+
+            return partialAttr;
+        }
+
+        //private Classification ClassifyCase(DataRow row, Rule rule)
+        //{
+        //    var matching = IsMatching(rule.Attributes, row);
+
+        //    if(matching)
+        //    {
+        //        if (row[rule.Decision.Key].ToString() == rule.Decision.Value)
+        //        {
+        //            return Classification.CorrectlyClassified;
+        //        }else
+        //        {
+        //            return Classification.IncorrectylyClassified;
+        //        }
+        //    }
+        //    return Classification.NoMatch;
+        //}
+        /// <summary>
+        /// Complete Matching
+        /// </summary>
+        /// <param name="attributes"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        private bool IsMatchingComplete(OrderedDictionary attributes, DataRow row)
+        {
+
+            foreach (DictionaryEntry attrValue in attributes)
+            {
+                var value = attrValue.Value.ToString();
+                if (!value.Contains(".."))
+                {
+                    if (new string[] { value, "*", "-" }.Contains(row[attrValue.Key.ToString()].ToString()))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else//Interval
+                {
+                    var intervals = value.Split(new string[] { ".." },StringSplitOptions.RemoveEmptyEntries);
+                    if(float.TryParse(intervals[0], out float min)
+                        && float.TryParse(intervals[1], out float max) && float.TryParse(row[attrValue.Key.ToString()].ToString(),out float data))
+                    {
+                        if (data > min && data < max)
+                            continue;
+                        else
+                            return false;
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Intervals");
+                    }
+                }
+
             }
 
             return true;
 
         }
+
+
     }
 }

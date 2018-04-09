@@ -14,6 +14,15 @@ namespace RuleChecker
 
     public class Rule
     {
+        public Rule(int spec,int strength, int matchingCases, KeyValuePair<string, string> decision,OrderedDictionary attrib)
+        {
+            this.Specificity = spec;
+            Strength = strength;
+            MatchingCases = matchingCases;
+            Decision = decision;
+            Attributes = attrib;
+        }
+
         public int Specificity { get; set; }
         public int Strength { get; set; }
         public int MatchingCases { get; set; }

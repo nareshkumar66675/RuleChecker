@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Decision.cs" />
     <Compile Include="FileOperation.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuleCheck.cs" />
