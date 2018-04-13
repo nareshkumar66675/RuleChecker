@@ -43,11 +43,14 @@ namespace RuleChecker
 
         public List<CaseDetails> CompleteMatch { get; set; }
 
+        public List<CaseDetails> PartialMatch { get; set; }
+
         public RuleCheck(DataTable data,RulesModel rules)
         {
             TestData = data;
             Rules = rules;
             CompleteMatch = new List<CaseDetails>();
+            PartialMatch = new List<CaseDetails>();
         }
 
         public void Start()
@@ -66,23 +69,86 @@ namespace RuleChecker
                 CompleteMatch.Add(cd);
             }
 
-            //CompleteMatch.Where(t => t.MatchingRules.Count == 0).ToList().ForEach(notMatched =>
+            //Partial Match
+            CompleteMatch.Where(t => t.MatchingRules.Count == 0).ToList().ForEach(notMatched =>
+            {
+                CaseDetails cd = new CaseDetails();
+                cd.ID = notMatched.ID;
+                cd.DecisionValue = notMatched.DecisionValue;
+                Rules.Rules.ForEach(rule =>
+                {
+                    int rowID = int.Parse(notMatched.ID);
+                    var row = TestData.Rows[rowID-1];
+
+                    
+                    var partialAttrib = IsMatchingPartial(rule.Attributes, row);
+                    if(partialAttrib.Count>0)
+                    {
+                        var newRule = Helper.DeepCopy<Rule>(rule);
+                        newRule.Attributes = partialAttrib;
+                        newRule.CalculatedValue = Decision.CalculateValue(newRule);
+                        cd.MatchingRules.Add(newRule);
+                    }
+
+                });
+                if(cd.MatchingRules.Count>0)
+                    PartialMatch.Add(cd);
+            }
+            );
+            CompleteMatch.RemoveAll(t => t.MatchingRules.Count == 0);
+            ClassifyRules(CompleteMatch);
+            ClassifyRules(PartialMatch);
+
+            //foreach (var row in CompleteMatch)
             //{
-            //    var partialAttrib = IsMatchingPartial(notMatched.Attributes, row);
-            //    var newRule = Helper.DeepCopy<Rule>(rule);
-            //    newRule.Attributes = partialAttrib;
-            //    newRule.CalculatedValue = Decision.CalculateValue(newRule);
+            //    var concepts = row.MatchingRules.Select(t => t.Decision.Value).Distinct().ToList();
+            //    if(row.MatchingRules.Count == 1) // Only 1 Matching Rule
+            //    {
+            //        if(row.DecisionValue == concepts[0]) // Rule is Correctly Classified
+            //        {
+            //            row.CorrectlyClassified.Add(row.MatchingRules[0]);
+            //        }
+            //        else
+            //        {
+            //            row.InCorrectlyClassified.Add(row.MatchingRules[0]);
+            //        }
+            //    }
+            //    else if(concepts.Count ==1) //Multiple Rules but Single Concept - No support
+            //    {
+            //        var bestRule= row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+            //        if (row.DecisionValue == bestRule.Decision.Value)
+            //            row.CorrectlyClassified.Add(bestRule);
+            //        else
+            //            row.InCorrectlyClassified.Add(bestRule);
+
+            //    }else if(concepts.Count >1)//Multiple Group Uses Support
+            //    {
+            //        Rule bestRule;
+            //        if(Decision.UseSupport)
+            //        {
+            //            var bestConcept = row.MatchingRules.GroupBy(t => t.Decision.Value).Select(g => new { key = g.Key, Value = g.Sum(s => s.CalculatedValue) }).OrderByDescending(u => u.Value).FirstOrDefault();
+            //            bestRule = row.MatchingRules.Where(t => t.Decision.Value == bestConcept.key).OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+            //        }else
+            //        {
+            //            bestRule = row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+            //        }
+
+            //        if (row.DecisionValue == bestRule.Decision.Value)
+            //            row.CorrectlyClassified.Add(bestRule);
+            //        else
+            //            row.InCorrectlyClassified.Add(bestRule);
+            //    }
             //}
-            //);
+        }
 
-
-
-            foreach (var row in CompleteMatch)
+        private void ClassifyRules(List<CaseDetails> matched)
+        {
+            foreach (var row in matched)
             {
                 var concepts = row.MatchingRules.Select(t => t.Decision.Value).Distinct().ToList();
-                if(row.MatchingRules.Count == 1) // Only 1 Matching Rule
+                if (row.MatchingRules.Count == 1) // Only 1 Matching Rule
                 {
-                    if(row.DecisionValue == concepts[0]) // Rule is Correctly Classified
+                    if (row.DecisionValue == concepts[0]) // Rule is Correctly Classified
                     {
                         row.CorrectlyClassified.Add(row.MatchingRules[0]);
                     }
@@ -91,22 +157,24 @@ namespace RuleChecker
                         row.InCorrectlyClassified.Add(row.MatchingRules[0]);
                     }
                 }
-                else if(concepts.Count ==1) //Multiple Rules but Single Concept - No support
+                else if (concepts.Count == 1) //Multiple Rules but Single Concept - No support
                 {
-                    var bestRule= row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
+                    var bestRule = row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
                     if (row.DecisionValue == bestRule.Decision.Value)
                         row.CorrectlyClassified.Add(bestRule);
                     else
                         row.InCorrectlyClassified.Add(bestRule);
 
-                }else if(concepts.Count >1)//Multiple Group Uses Support
+                }
+                else if (concepts.Count > 1)//Multiple Group Uses Support
                 {
                     Rule bestRule;
-                    if(Decision.UseSupport)
+                    if (Decision.UseSupport)
                     {
                         var bestConcept = row.MatchingRules.GroupBy(t => t.Decision.Value).Select(g => new { key = g.Key, Value = g.Sum(s => s.CalculatedValue) }).OrderByDescending(u => u.Value).FirstOrDefault();
                         bestRule = row.MatchingRules.Where(t => t.Decision.Value == bestConcept.key).OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
-                    }else
+                    }
+                    else
                     {
                         bestRule = row.MatchingRules.OrderByDescending(t => t.CalculatedValue).FirstOrDefault();
                     }

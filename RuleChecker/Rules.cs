@@ -7,13 +7,16 @@ using System.Collections.Specialized;
 
 namespace RuleChecker
 {
+    [Serializable]
     public class RulesModel
     {
         public List<Rule> Rules { get; set; }
     }
-
+    [Serializable]
     public class Rule
     {
+        public Rule()
+        { }
         public Rule(int spec,int strength, int matchingCases, KeyValuePair<string, string> decision,OrderedDictionary attrib)
         {
             this.Specificity = spec;
