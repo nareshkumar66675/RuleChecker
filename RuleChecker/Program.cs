@@ -14,10 +14,7 @@ namespace RuleChecker
 
             var rules = FileOperation.ReadRuleFile(@"C:\Users\Naresh\Desktop\DM2\m-iris.r.txt");
 
-            Decision.UseMatchingFactor = false;
-            Decision.UseSpecificity = false;
-            Decision.UseSupport = false;
-            Decision.UseStrength = true;
+            Decision.GetChoicesFromUser();
 
             RuleCheck rCheck = new RuleCheck(data, rules);
             rCheck.Start();

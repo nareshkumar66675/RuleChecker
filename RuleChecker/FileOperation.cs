@@ -113,6 +113,10 @@ namespace RuleChecker
                                     });
 
                             }
+                            else
+                            {
+                                throw new Exception("Error in Rule File: Incorrect Numbers preceding rule");
+                            }
                             rules.Rules.Add(rule);
                         }
                     }
