@@ -18,11 +18,14 @@ namespace RuleChecker
 
             //Decision.GetChoicesFromUser();
             Decision.PrintConceptStat = true;
+            Decision.PrintCasesStat = true;
             RuleCheck rCheck = new RuleCheck(data, rules);
             rCheck.Start();
             Statistic stat = new Statistic(data, rules, rCheck.CompleteMatch, rCheck.PartialMatch);
             stat.WriteGeneralStat();
             stat.WriteConceptStat();
+            stat.WriteCasesStat();
+            Console.ReadLine(); 
         }
     }
 }

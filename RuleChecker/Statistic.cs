@@ -34,6 +34,11 @@ namespace RuleChecker
             var totIncorrectCount = notClassifiedCount + partialIncorrectCount + completeIncorrectCount;
             var errorRate = Math.Round((float)totIncorrectCount / (float)TestData.Rows.Count,4);
 
+            stat.AppendLine("-----------------Mining Special Data Project-------------------");
+            stat.AppendLine("--  Name : Naresh Kumar Sampath             -------------------");
+            stat.AppendLine("--  KUID : 2922935                          -------------------");
+            stat.AppendLine("---------------------------------------------------------------");
+            stat.AppendLine();
             stat.AppendLine("GENERAL STATISTICS");
 
             stat.AppendFormat("This Report was created from: {0} and from: {1} \n", "rule file", "data file");
@@ -97,6 +102,65 @@ namespace RuleChecker
                 stat.AppendLine("------------------------------------------------------------");
                 Console.WriteLine(stat.ToString());
             }
+        }
+
+        public void WriteCasesStat()
+        {
+            if (Decision.PrintCasesStat)
+            {
+                StringBuilder stat = new StringBuilder();
+                var testData = TestData.AsEnumerable();
+                var concepts = testData.Select(t => t.Field<string>(TestData.Columns.Count - 2)).Distinct();
+
+                stat.AppendLine("\nHow cases associated with concepts were classified");
+
+                foreach (var concept in concepts)
+                {
+
+                    stat.AppendFormat("Concept({0},{1}) :\n", TestData.Columns[TestData.Columns.Count - 2].ColumnName, concept);
+
+                    var tempData = testData.Where(t => t.Field<string>(TestData.Columns.Count - 2) == concept);
+                    var conceptNotClassCases = tempData.Where(t => !GetClassifiedIds().Exists(u => t.Field<string>(TestData.Columns.Count - 1).Equals(u))).Select(v=>v.Field<string>("ID")).ToList();
+                    var partIncorrCases = PartialMatch.Where(t => t.InCorrectlyClassified.Count > 0 && string.Equals(t.DecisionValue, concept)).Select(u=>u.ID).ToList();
+                    var partCorrCases = PartialMatch.Where(t => t.CorrectlyClassified.Count > 0 && string.Equals(t.DecisionValue, concept)).Select(u => u.ID).ToList();
+                    var completeIncorrCases = CompleteMatch.Where(t => t.InCorrectlyClassified.Count > 0 && string.Equals(t.DecisionValue, concept)).Select(u => u.ID).ToList();
+                    var completeCorrCases = CompleteMatch.Where(t => t.CorrectlyClassified.Count > 0 && string.Equals(t.DecisionValue, concept)).Select(u => u.ID).ToList();
+
+
+
+                    stat.AppendFormat("List of cases that are not classified: \n");
+                    stat.AppendLine(GetCases(conceptNotClassCases));
+                    stat.AppendLine("\t PARTIAL MATCHING:");
+                    stat.AppendFormat("List of cases that are incorrectly classified: \n");
+                    stat.AppendLine(GetCases(partIncorrCases));
+                    stat.AppendFormat("List of cases that are correctly classified:\n");
+                    stat.AppendLine(GetCases(partCorrCases));
+                    stat.AppendLine("\t COMPLETE MATCHING:");
+                    stat.AppendFormat("List of cases that are incorrectly classified:\n");
+                    stat.AppendLine(GetCases(completeIncorrCases));
+                    stat.AppendFormat("List of cases that are correctly classified: \n");
+                    stat.AppendLine(GetCases(completeCorrCases));
+                    stat.AppendLine();
+
+                }
+
+                stat.AppendLine("------------------------------------------------------------");
+                Console.WriteLine(stat.ToString());
+            }
+        }
+
+        private string GetCases(List<string> ids)
+        {
+            StringBuilder cases = new StringBuilder();
+
+            var caseList = TestData.AsEnumerable().Where(t => ids.Exists(u => string.Equals(t.Field<string>("ID"), u)));
+
+            foreach (var item in caseList)
+            {
+                cases.AppendLine(string.Join(",", item.ItemArray.Take(TestData.Columns.Count-1).Select(t=>t.ToString()).ToArray()));
+            }
+
+            return cases.ToString();
         }
 
         private List<string> GetClassifiedIds()
