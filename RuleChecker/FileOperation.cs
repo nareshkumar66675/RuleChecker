@@ -21,6 +21,7 @@ namespace RuleChecker
                     string line = string.Empty;
                     while ((line = sr.ReadLine()) != null)
                     {
+                        if(line!=string.Empty)
                         switch (line[0])
                         {
                             case '<':
@@ -76,6 +77,17 @@ namespace RuleChecker
                                 rule.Attributes = new OrderedDictionary();
 
                                 var rulLine = sr.ReadLine();
+                                if(!rulLine.Contains("->") && !rulLine.Contains("-->"))
+                                {
+                                    string tempLine = string.Empty;
+                                    while((tempLine=sr.ReadLine())!=null )
+                                    {
+                                        rulLine += tempLine;
+                                        if (tempLine.Contains("->") || rulLine.Contains("-->"))
+                                            break;
+
+                                    }
+                                }
 
                                 var rulData = rulLine.Split(new string[] { "&","->","-->" }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
