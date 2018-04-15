@@ -11,6 +11,45 @@ namespace RuleChecker
 {
     public static class FileOperation
     {
+        public static string DataFilePath { get; set; }
+        public static string RuleFilePath { get; set; }
+        public static DataTable ReadDataFile()
+        {
+            while(true)
+            {
+                Console.WriteLine("Enter Name of Data File:");
+                string path = Console.ReadLine();
+
+                if(File.Exists(Path.Combine(Directory.GetCurrentDirectory(),path)))
+                {
+                    DataFilePath = path;
+                    return ReadDataFile(path);
+                }else
+                {
+                    Console.WriteLine("Incorrect File Name or File Not Exists");
+                }
+            }
+        }
+
+        public static RulesModel ReadRuleFile()
+        {
+            while (true)
+            {
+                Console.WriteLine("Enter Name of Rule File:");
+                string path = Console.ReadLine();
+
+                if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), path)))
+                {
+                    RuleFilePath = path;
+                    return ReadRuleFile(path);
+                }
+                else
+                {
+                    Console.WriteLine("Incorrect File Name or File Not Exists");
+                }
+            }
+        }
+
         public static DataTable ReadDataFile(string path)
         {
             DataTable data = new DataTable();

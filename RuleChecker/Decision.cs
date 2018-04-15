@@ -32,17 +32,17 @@ namespace RuleChecker
 
         public static void GetChoicesFromUser()
         {
-            if (GetCorrectChoice("Do You wish to use Matcing Factor ? (y/RETURN)",new string[] { "y", "" }).ToLower() == "y")
+            if (GetCorrectChoice("Do you wish to use Matcing Factor ? (y/<RETURN>)",new string[] { "y", "" }).ToLower() == "y")
                 UseMatchingFactor = true;
             if (GetCorrectChoice("Do you wish to use strength or conditional probability as Strength Factor ? (s/p)", new string[] { "s", "p" }).ToLower() == "s")
                 UseStrength = true;
-            if (GetCorrectChoice("Do you wish to use Specificity ? (s/p)", new string[] { "y", "" }).ToLower() == "y")
+            if (GetCorrectChoice("Do you wish to use Specificity ? (y/<RETURN>)", new string[] { "y", "" }).ToLower() == "y")
                 UseSpecificity = true;
-            if (GetCorrectChoice("Do you wish to use Support of other rules ? (y/RETURN)", new string[] { "y", "" }).ToLower() == "y")
+            if (GetCorrectChoice("Do you wish to use Support of other rules ? (y/<RETURN>)", new string[] { "y", "" }).ToLower() == "y")
                 UseSupport = true;
-            if (GetCorrectChoice("Do you wish to know Concept Statistics ? (y/RETURN)", new string[] { "y", "" }).ToLower() == "y")
+            if (GetCorrectChoice("Do you wish to know Concept Statistics ? (y/<RETURN>)", new string[] { "y", "" }).ToLower() == "y")
                 PrintConceptStat = true;
-            if (GetCorrectChoice("Do you wish to know how cases associated with concepts ? (y/RETURN)", new string[] { "y", "" }).ToLower() == "y")
+            if (GetCorrectChoice("Do you wish to know how cases associated with concepts ? (y/<RETURN>)", new string[] { "y", "" }).ToLower() == "y")
                 PrintCasesStat = true;
 
         }
@@ -61,8 +61,6 @@ namespace RuleChecker
                         return input;
                 }
             }
-
-            return null;
         }
 
         public static float CalculateValue(Rule rule)

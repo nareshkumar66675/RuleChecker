@@ -41,7 +41,7 @@ namespace RuleChecker
             stat.AppendLine();
             stat.AppendLine("GENERAL STATISTICS");
 
-            stat.AppendFormat("This Report was created from: {0} and from: {1} \n", "rule file", "data file");
+            stat.AppendFormat("This Report was created from: {0} and from: {1} \n", FileOperation.RuleFilePath, FileOperation.DataFilePath);
             stat.AppendFormat("The total number of cases: {0} \n",TestData.Rows.Count);
             stat.AppendFormat("The total number of attributes: {0} \n", TestData.Columns.Count - 2);
             stat.AppendFormat("The total number of rules: {0} \n", Rules.Rules.Count);
@@ -55,7 +55,7 @@ namespace RuleChecker
             stat.AppendFormat("   The total number of cases that are correctly classified: {0} \n", CompleteMatch.Sum(t => t.CorrectlyClassified.Count));
             stat.AppendLine("\t PARTIAL AND COMPLETE MATCHING::");
             stat.AppendFormat("The total number of cases that are not classified or incorrectly classified: {0} \n", totIncorrectCount);
-            stat.AppendFormat("Error rate: {0} % \n", errorRate * 100);
+            stat.AppendFormat("Error rate: {0} % ({1}) \n", errorRate * 100, errorRate);
 
             stat.AppendLine("------------------------------------------------------------");
 
