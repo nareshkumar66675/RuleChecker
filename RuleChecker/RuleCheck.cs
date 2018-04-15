@@ -10,6 +10,12 @@ using System.Threading.Tasks;
 namespace RuleChecker
 {
 
+    public enum ColumnType
+    {
+        SYMBOLIC,
+        NUMERIC
+    }
+
     public class CaseDetails
     {
         public string ID { get; set; }
@@ -33,6 +39,8 @@ namespace RuleChecker
         public DataTable TestData { get; set; }
         public RulesModel Rules { get; set; }
 
+        public Dictionary<string,ColumnType> ColumnTypes { get; set; }
+
         public List<CaseDetails> CompleteMatch { get; set; }
 
         public List<CaseDetails> PartialMatch { get; set; }
@@ -43,10 +51,12 @@ namespace RuleChecker
             Rules = rules;
             CompleteMatch = new List<CaseDetails>();
             PartialMatch = new List<CaseDetails>();
+            ColumnTypes = new Dictionary<string, ColumnType>();
         }
 
         public void Start()
         {
+            FindNumericOrSymbolic();
             foreach (DataRow row in TestData.Rows)
             {
                 CaseDetails cd = new CaseDetails();
@@ -90,6 +100,31 @@ namespace RuleChecker
             CompleteMatch.RemoveAll(t => t.MatchingRules.Count == 0);
             ClassifyRules(CompleteMatch);
             ClassifyRules(PartialMatch);
+        }
+
+        private void FindNumericOrSymbolic()
+        {
+            var testData = TestData.AsEnumerable();
+            foreach (DataColumn column in TestData.Columns)
+            {
+               bool isNumeric = true;
+               var temp = testData.Select(t => t.Field<string>(column)).ToList();
+                if(column.ColumnName!="ID")
+                {
+                    foreach (var item in temp)
+                    {
+                        if (!float.TryParse(item,  out float result))
+                        {
+                            isNumeric = false;
+                            ColumnTypes.Add(column.ColumnName, ColumnType.SYMBOLIC);
+                            break;
+                        }
+
+                    }
+                    if (isNumeric)
+                        ColumnTypes.Add(column.ColumnName, ColumnType.NUMERIC);
+                }
+            }
         }
 
         private void ClassifyRules(List<CaseDetails> matched)
@@ -145,7 +180,8 @@ namespace RuleChecker
             foreach (DictionaryEntry attrValue in attributes)
             {
                 var value = attrValue.Value.ToString();
-                if (!value.Contains(".."))
+                ColumnTypes.TryGetValue(attrValue.Key.ToString(), out ColumnType type);
+                if (type == ColumnType.SYMBOLIC)//if (!value.Contains(".."))
                 {
                     if (new string[] { value, "*", "-" }.Contains(row[attrValue.Key.ToString()].ToString()))
                     {
@@ -184,7 +220,8 @@ namespace RuleChecker
             foreach (DictionaryEntry attrValue in attributes)
             {
                 var value = attrValue.Value.ToString();
-                if (!value.Contains(".."))
+                ColumnTypes.TryGetValue(attrValue.Key.ToString(), out ColumnType type);
+                if( type== ColumnType.SYMBOLIC)//if (!value.Contains(".."))
                 {
                     if (new string[] { value, "*", "-" }.Contains(row[attrValue.Key.ToString()].ToString()))
                     {

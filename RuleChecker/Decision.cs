@@ -36,7 +36,7 @@ namespace RuleChecker
                 UseMatchingFactor = true;
             if (GetCorrectChoice("Do you wish to use strength or conditional probability as Strength Factor ? (s/p)", new string[] { "s", "p" }).ToLower() == "s")
                 UseStrength = true;
-            if (GetCorrectChoice("Do you wish to use Specificity", new string[] { "y", "" }).ToLower() == "y")
+            if (GetCorrectChoice("Do you wish to use Specificity ? (s/p)", new string[] { "y", "" }).ToLower() == "y")
                 UseSpecificity = true;
             if (GetCorrectChoice("Do you wish to use Support of other rules ? (y/RETURN)", new string[] { "y", "" }).ToLower() == "y")
                 UseSupport = true;

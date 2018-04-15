@@ -88,11 +88,11 @@ namespace RuleChecker
 
                     stat.AppendFormat("The total number of cases that are not classified: {0} \n", conceptNotClassCount);
                     stat.AppendLine("\t PARTIAL MATCHING:");
-                    stat.AppendFormat("The total number of cases that are incorrectly classified: {0} \n", partIncorrCount);
-                    stat.AppendFormat("The total number of cases that are correctly classified: {0} \n", partCorrCount);
+                    stat.AppendFormat("   The total number of cases that are incorrectly classified: {0} \n", partIncorrCount);
+                    stat.AppendFormat("   The total number of cases that are correctly classified: {0} \n", partCorrCount);
                     stat.AppendLine("\t COMPLETE MATCHING:");
-                    stat.AppendFormat("The total number of cases that are incorrectly classified: {0} \n", completeIncorrCount);
-                    stat.AppendFormat("The total number of cases that are correctly classified: {0} \n", completeCorrCount);
+                    stat.AppendFormat("   The total number of cases that are incorrectly classified: {0} \n", completeIncorrCount);
+                    stat.AppendFormat("    total number of cases that are correctly classified: {0} \n", completeCorrCount);
                     stat.AppendFormat("The total number of cases in the concept: {0}", tempData.Count());
                     stat.AppendLine();
                     stat.AppendLine();
