@@ -12,6 +12,7 @@ namespace RuleChecker
         {
             try
             {
+                //Naresh Kumar
                 //var data = FileOperation.ReadDataFile(@"C:\Users\Naresh\Desktop\DM2\m-iris.txt");
                 //var data = FileOperation.ReadDataFile(@"C:\Users\Naresh\Desktop\DM2\car.txt");
                 //var rules = FileOperation.ReadRuleFile(@"C:\Users\Naresh\Desktop\DM2\m-iris.r.txt");
